@@ -1,0 +1,24 @@
+<ivysettings>
+    <settings defaultResolver="main"/>
+
+    <resolvers>
+        <chain name="main" dual="true">
+            <filesystem name="local" m2compatible="true">
+                <ivy pattern="${user.home}/.ivy/repo/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
+                <artifact pattern="${user.home}/.ivy/repo/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+            </filesystem>
+
+            <url name="movealong-local" m2compatible="true">
+                <ivy pattern="http://ivy.movealong.org/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
+                <artifact pattern="http://ivy.movealong.org/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+            </url>
+
+            <ibiblio name="m2" m2compatible="true"/>
+        </chain>
+
+        <ssh name="dorothy" user="hudson" host="dorothy.movealong.org" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
+            <ivy pattern="/var/www/ivy.movealong.org/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
+            <artifact pattern="/var/www/ivy.movealong.org/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        </ssh>
+    </resolvers>
+</ivysettings>

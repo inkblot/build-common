@@ -1,0 +1,216 @@
+<project name="build-common" xmlns:ivy="antlib:org.apache.ivy.ant" default="dist">
+    <property name="lib.home" value="${user.home}/.ant/lib"/>
+
+    <property name="src" location="${basedir}/src"/>
+    <property name="test" location="${basedir}/test"/>
+    <property name="build" location="${basedir}/build"/>
+    <property name="build.dist" location="${build}/dist"/>
+    <property name="build.classes" location="${build}/classes"/>
+    <property name="build.test" location="${build}/test"/>
+    <property name="build.javadoc" location="${build}/javadoc"/>
+    <property name="test.classes" location="${build.test}/classes"/>
+    <property name="test.properties" location="${basedir}/test-properties"/>
+    <property name="test.results" location="${build.test}/results"/>
+    <property name="coverage" location="${build}/coverage"/>
+    <property name="coverage.classes" location="${coverage}/classes"/>
+    <property name="reports" location="${build}/reports"/>
+    <property name="reports.test" location="${reports}/test"/>
+    <property name="reports.coverage" location="${reports}/coverage"/>
+    <property name="reports.ivy" location="${reports}/ivy"/>
+    <property name="lib" location="${basedir}/lib"/>
+    <property name="lib.compile" location="${lib}/compile"/>
+    <property name="lib.runtime" location="${lib}/runtime"/>
+    <property name="lib.test" location="${lib}/test"/>
+    <property name="lib.cobertura" location="${lib}/cobertura"/>
+
+    <path id="lib.compile.path">
+        <fileset dir="${lib.compile}" includes="*.jar"/>
+    </path>
+
+    <path id="lib.runtime.path">
+        <fileset dir="${lib.runtime}" includes="*.jar"/>
+    </path>
+
+    <path id="lib.test.path">
+        <fileset dir="${lib.test}" includes="*.jar"/>
+    </path>
+
+    <path id="lib.cobertura.path">
+        <fileset dir="${lib.cobertura}" includes="*.jar"/>
+    </path>
+
+    <target name="clean-artifacts">
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="clean" depends="clean-artifacts">
+        <delete dir="${lib}"/>
+    </target>
+
+    <target name="resolve-test" if="use.test">
+        <mkdir dir="${lib.test}"/>
+        <ivy:retrieve pattern="${lib.test}/[artifact]-[revision].[ext]" conf="test"/>
+    </target>
+
+    <target name="resolve-cobertura" if="use.cobertura">
+        <mkdir dir="${lib.cobertura}"/>
+        <ivy:retrieve pattern="${lib.cobertura}/[artifact]-[revision].[ext]" conf="cobertura"/>
+    </target>
+
+    <target name="resolve" depends="init-ivy,resolve-test,resolve-cobertura">
+        <mkdir dir="${lib.compile}"/>
+        <ivy:retrieve pattern="${lib.compile}/[artifact]-[revision].[ext]" conf="compile"/>
+        <mkdir dir="${lib.runtime}"/>
+        <ivy:retrieve pattern="${lib.runtime}/[artifact]-[revision].[ext]" conf="runtime"/>
+    </target>
+
+    <target name="init" depends="resolve">
+        <mkdir dir="${build.classes}"/>
+        <mkdir dir="${build.javadoc}"/>
+        <mkdir dir="${build.dist}"/>
+        <mkdir dir="${test.classes}"/>
+        <mkdir dir="${test.results}"/>
+        <mkdir dir="${reports.test}"/>
+        <mkdir dir="${reports.ivy}"/>
+        <mkdir dir="${reports.coverage}"/>
+        <mkdir dir="${coverage.classes}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac destdir="${build.classes}" srcdir="${src}" includes="**" debug="true" target="1.5">
+            <classpath refid="lib.compile.path"/>
+        </javac>
+    </target>
+
+    <target name="instrument" depends="compile" if="use.cobertura">
+        <taskdef classpathref="lib.cobertura.path" resource="tasks.properties"/>
+        <cobertura-instrument todir="${coverage.classes}" datafile="${coverage}/cobertura.ser">
+            <fileset dir="${build.classes}" includes="**/*.class"/>
+        </cobertura-instrument>
+        <property name="instrumented" value="sure"/>
+    </target>
+
+    <target name="test-compile" if="use.test">
+        <javac destdir="${test.classes}" srcdir="${test}" includes="**" debug="true" target="1.5">
+            <classpath location="${build.classes}"/>
+            <classpath refid="lib.compile.path"/>
+            <classpath refid="lib.test.path"/>
+        </javac>
+    </target>
+
+    <target name="test" depends="instrument,test-compile" if="use.test">
+        <junit fork="true" dir="${basedir}" failureproperty="test.failed" printsummary="yes">
+            <jvmarg value="-Dnet.sourceforge.cobertura.datafile=${coverage}/cobertura.ser"/>
+            <classpath location="${coverage.classes}"/>
+            <classpath location="${build.classes}"/>
+            <classpath location="${test.classes}"/>
+            <classpath location="${test.properties}"/>
+            <classpath refid="lib.test.path"/>
+            <classpath refid="lib.cobertura.path"/>
+            <formatter type="xml"/>
+            <batchtest todir="${test.results}">
+                <fileset dir="${test}" includes="**/*Test.java"/>
+            </batchtest>
+        </junit>
+        <property name="tested" value="sure"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${build.dist}/${ant.project.name}.jar">
+            <fileset dir="${build.classes}">
+                <include name="**"/>
+                <exclude name="**/client/**"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="client-jar" if="use.client-jar">
+        <jar destfile="${build.dist}/${ant.project.name}-client.jar">
+            <fileset dir="${build.classes}">
+                <include name="**/client/**"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="source-jar">
+        <jar  destfile="${build.dist}/${ant.project.name}-source.jar">
+            <fileset dir="${src}">
+                <include  name="**"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="javadoc" if="use.javadoc">
+        <javadoc destdir="${build.javadoc}">
+            <fileset dir="${src}">
+                <include name="**/*.java"/>
+            </fileset>
+            <classpath refid="lib.runtime.path"/>
+        </javadoc>
+    </target>
+
+    <target name="doc-jar" depends="javadoc" if="use.javadoc">
+        <jar destfile="${build.dist}/${ant.project.name}-doc.jar">
+            <fileset dir="${build.javadoc}">
+                <include name="**"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="artifacts" depends="jar,client-jar,source-jar,doc-jar"/>
+
+    <target name="test-report" if="tested">
+        <junitreport todir="${reports.test}">
+            <fileset dir="${test.results}">
+                <include name="**/TEST-*.xml"/>
+            </fileset>
+            <report todir="${reports.test}"/>
+        </junitreport>
+    </target>
+
+    <target name="coverage-report" if="use.cobertura">
+        <cobertura-report format="xml" destdir="${reports.coverage}" srcdir="${src}" datafile="${coverage}/cobertura.ser"/>
+        <cobertura-report format="html" destdir="${reports.coverage}" srcdir="${src}" datafile="${coverage}/cobertura.ser"/>
+    </target>
+
+    <target name="report" depends="test-report,coverage-report" />
+
+    <target name="resolve-report-test" if="use.test">
+        <ivy:report todir="${reports.ivy}" conf="test"/>
+    </target>
+
+    <target name="resolve-report-cobertura" if="use.cobertura">
+        <ivy:report todir="${reports.ivy}" conf="cobertura"/>
+    </target>
+
+    <target name="resolve-report" depends="resolve,resolve-report-test,resolve-report-cobertura" description="repository dependency report">
+        <ivy:report todir="${reports.ivy}" conf="compile"/>
+        <ivy:report todir="${reports.ivy}" conf="runtime"/>
+    </target>
+
+    <target name="dist" depends="clean,artifacts,test,report" description="Create clean distribution artifacts">
+        <fail if="test.failed" message="Tests failed"/>
+    </target>
+
+    <target name="publish-local" depends="dist" description="Publish artifacts to repository">
+        <ivy:publish resolver="local" overwrite="true">
+            <artifacts pattern="${build.dist}/[artifact].[ext]"/>
+        </ivy:publish>
+    </target>
+
+    <target name="publish-public" depends="dist" description="Publish artifacts to repository">
+        <ivy:publish resolver="dorothy" overwrite="true">
+            <artifacts pattern="${build.dist}/[artifact].[ext]"/>
+        </ivy:publish>
+    </target>
+
+    <target name="svnrev">
+        <loadfile property="dist.revision" srcFile="./.svn/entries">
+            <filterchain>
+                <headfilter lines="1" skip="3"/>
+                <deletecharacters chars="\n"/>
+            </filterchain>
+        </loadfile>
+        <echo message="Revision: ${dist.revision}"/>
+    </target>
+</project>
