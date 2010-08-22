@@ -2,6 +2,7 @@
     <property name="lib.home" value="${user.home}/.ant/lib"/>
 
     <property name="src" location="${basedir}/src"/>
+    <property name="src.properties" location="${basedir}/properties"/>
     <property name="test" location="${basedir}/test"/>
     <property name="build" location="${basedir}/build"/>
     <property name="build.dist" location="${build}/dist"/>
@@ -124,6 +125,9 @@
             <fileset dir="${build.classes}">
                 <include name="**"/>
                 <exclude name="**/client/**"/>
+            </fileset>
+            <fileset dir="${src.properties}">
+                <include name="**"/>
             </fileset>
         </jar>
     </target>
