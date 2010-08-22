@@ -107,6 +107,8 @@
             <classpath location="${build.classes}"/>
             <classpath location="${test.classes}"/>
             <classpath location="${test.properties}"/>
+            <classpath refid="lib.compile.path"/>
+            <classpath refid="lib.runtime.path"/>
             <classpath refid="lib.test.path"/>
             <classpath refid="lib.cobertura.path"/>
             <formatter type="xml"/>
