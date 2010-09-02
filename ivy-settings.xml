@@ -8,6 +8,11 @@
                 <artifact pattern="${user.home}/.ivy/repo/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
             </filesystem>
 
+            <url name="movealong-private" m2compatible="true">
+                <ivy pattern="http://ivy.vpn.movealong.org/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
+                <artifact pattern="http://ivy.vpn.movealong.org/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+            </url>
+
             <url name="movealong-local" m2compatible="true">
                 <ivy pattern="http://ivy.movealong.org/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
                 <artifact pattern="http://ivy.movealong.org/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
@@ -16,9 +21,14 @@
             <ibiblio name="m2" m2compatible="true"/>
         </chain>
 
-        <ssh name="dorothy" user="hudson" host="dorothy.movealong.org" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
+        <ssh name="dorothy-public" user="hudson" host="dorothy.movealong.org" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
             <ivy pattern="/var/www/ivy.movealong.org/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
             <artifact pattern="/var/www/ivy.movealong.org/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        </ssh>
+
+        <ssh name="dorothy-private" user="hudson" host="dorothy.movealong.org" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
+            <ivy pattern="/var/www/ivy.vpn.movealong.org/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
+            <artifact pattern="/var/www/ivy.vpn.movealong.org/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
         </ssh>
     </resolvers>
 </ivysettings>
