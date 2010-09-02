@@ -1,5 +1,4 @@
 <project name="build-common" xmlns:ivy="antlib:org.apache.ivy.ant" default="dist">
-    <property name="lib.home" value="${user.home}/.ant/lib"/>
 
     <property name="src" location="${basedir}/src"/>
     <property name="src.properties" location="${basedir}/properties"/>
@@ -22,7 +21,7 @@
     <property name="lib.compile" location="${lib}/compile"/>
     <property name="lib.runtime" location="${lib}/runtime"/>
     <property name="lib.test" location="${lib}/test"/>
-    <property name="lib.cobertura" location="${lib}/cobertura"/>
+    <property name="lib.build" location="${lib}/build"/>
 
     <path id="lib.compile.path">
         <fileset dir="${lib.compile}" includes="*.jar"/>
@@ -36,8 +35,8 @@
         <fileset dir="${lib.test}" includes="*.jar"/>
     </path>
 
-    <path id="lib.cobertura.path">
-        <fileset dir="${lib.cobertura}" includes="*.jar"/>
+    <path id="lib.build.path">
+        <fileset dir="${lib.build}" includes="*.jar"/>
     </path>
 
     <target name="clean-artifacts">
@@ -50,10 +49,15 @@
 
     <target name="resolve" depends="init-ivy">
         <ivy:resolve/>
+        <echo message="Resolved: ${ivy.resolved.configurations}"/>
         <ivy:retrieve pattern="${lib}/[conf]/[artifact]-[revision].[ext]"/>
     </target>
 
     <target name="init" depends="resolve">
+        <mkdir dir="${lib.runtime}"/>
+        <mkdir dir="${lib.compile}"/>
+        <mkdir dir="${lib.test}"/>
+        <mkdir dir="${lib.build}"/>
         <mkdir dir="${build.classes}"/>
         <mkdir dir="${build.javadoc}"/>
         <mkdir dir="${build.dist}"/>
@@ -73,7 +77,7 @@
     </target>
 
     <target name="instrument" depends="compile" if="use.cobertura">
-        <taskdef classpathref="lib.cobertura.path" resource="tasks.properties"/>
+        <taskdef classpathref="lib.build.path" resource="tasks.properties"/>
         <cobertura-instrument todir="${coverage.classes}" datafile="${coverage}/cobertura.ser">
             <fileset dir="${build.classes}" includes="**/*.class"/>
         </cobertura-instrument>
@@ -99,7 +103,7 @@
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
             <classpath refid="lib.test.path"/>
-            <classpath refid="lib.cobertura.path"/>
+            <classpath refid="lib.build.path"/>
             <formatter type="xml"/>
             <batchtest todir="${test.results}">
                 <fileset dir="${test}" includes="**/*Test.java"/>
