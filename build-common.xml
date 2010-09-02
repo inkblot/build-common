@@ -48,21 +48,9 @@
         <delete dir="${lib}"/>
     </target>
 
-    <target name="resolve-test" if="use.test">
-        <mkdir dir="${lib.test}"/>
-        <ivy:retrieve pattern="${lib.test}/[artifact]-[revision].[ext]" conf="test"/>
-    </target>
-
-    <target name="resolve-cobertura" if="use.cobertura">
-        <mkdir dir="${lib.cobertura}"/>
-        <ivy:retrieve pattern="${lib.cobertura}/[artifact]-[revision].[ext]" conf="cobertura"/>
-    </target>
-
-    <target name="resolve" depends="init-ivy,resolve-test,resolve-cobertura">
-        <mkdir dir="${lib.compile}"/>
-        <ivy:retrieve pattern="${lib.compile}/[artifact]-[revision].[ext]" conf="compile"/>
-        <mkdir dir="${lib.runtime}"/>
-        <ivy:retrieve pattern="${lib.runtime}/[artifact]-[revision].[ext]" conf="runtime"/>
+    <target name="resolve" depends="init-ivy">
+        <ivy:resolve/>
+        <ivy:retrieve pattern="${lib}/[conf]/[artifact]-[revision].[ext]"/>
     </target>
 
     <target name="init" depends="resolve">
@@ -183,17 +171,8 @@
 
     <target name="report" depends="test-report,coverage-report" />
 
-    <target name="resolve-report-test" if="use.test">
-        <ivy:report todir="${reports.ivy}" conf="test"/>
-    </target>
-
-    <target name="resolve-report-cobertura" if="use.cobertura">
-        <ivy:report todir="${reports.ivy}" conf="cobertura"/>
-    </target>
-
-    <target name="resolve-report" depends="resolve,resolve-report-test,resolve-report-cobertura" description="repository dependency report">
-        <ivy:report todir="${reports.ivy}" conf="compile"/>
-        <ivy:report todir="${reports.ivy}" conf="runtime"/>
+    <target name="resolve-report" depends="resolve" description="repository dependency report">
+        <ivy:report todir="${reports.ivy}"/>
     </target>
 
     <target name="dist" depends="clean,artifacts,test,report" description="Create clean distribution artifacts">
