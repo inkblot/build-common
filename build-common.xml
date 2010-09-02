@@ -207,7 +207,13 @@
     </target>
 
     <target name="publish-public" depends="dist" description="Publish artifacts to repository">
-        <ivy:publish resolver="dorothy" overwrite="true">
+        <ivy:publish resolver="dorothy-public" overwrite="true">
+            <artifacts pattern="${build.dist}/[artifact].[ext]"/>
+        </ivy:publish>
+    </target>
+
+    <target name="publish-private" depends="dist" description="Publish artifacts to repository">
+        <ivy:publish resolver="dorothy-private" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
     </target>
