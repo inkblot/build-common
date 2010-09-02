@@ -200,19 +200,19 @@
         <fail if="test.failed" message="Tests failed"/>
     </target>
 
-    <target name="publish-local" depends="dist" description="Publish artifacts to repository">
+    <target name="publish-local" depends="dist" description="Publish artifacts to local repository">
         <ivy:publish resolver="local" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
     </target>
 
-    <target name="publish-public" depends="dist" description="Publish artifacts to repository">
+    <target name="publish-public" depends="dist" description="Publish artifacts to public repository">
         <ivy:publish resolver="dorothy-public" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
     </target>
 
-    <target name="publish-private" depends="dist" description="Publish artifacts to repository">
+    <target name="publish-private" depends="dist" description="Publish artifacts to private repository">
         <ivy:publish resolver="dorothy-private" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
