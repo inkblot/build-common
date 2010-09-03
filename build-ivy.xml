@@ -9,7 +9,7 @@
         <available file="${ivy.jar.file}"/>
     </condition>
 
-    <target name="download-ivy" unless="download-ivy.once" description="Bootstrap ivy from well-known repositories">
+    <target name="download-ivy" unless="download-ivy.once">
         <mkdir dir="${ivy.lib}"/>
         <get
                 src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar"
@@ -19,7 +19,7 @@
              dest="${ivy.lib}/jsch-0.1.38.jar" usetimestamp="true" verbose="true"/>
     </target>
 
-    <target name="init-ivy" depends="download-ivy" description="Initialize Ivy" unless="init-ivy.once">
+    <target name="init-ivy" depends="download-ivy" unless="init-ivy.once">
         <path id="ivy.lib.path">
             <fileset dir="${ivy.lib}" includes="*.jar"/>
         </path>

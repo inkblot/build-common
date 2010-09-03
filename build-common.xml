@@ -43,11 +43,11 @@
         <delete dir="${build}"/>
     </target>
 
-    <target name="clean" depends="clean-artifacts">
+    <target name="clean" depends="clean-artifacts" description="Remove all generated files and directory">
         <delete dir="${lib}"/>
     </target>
 
-    <target name="resolve" depends="init-ivy">
+    <target name="resolve" depends="init-ivy" description="Resolve dependencies">
         <ivy:resolve/>
         <echo message="Resolved: ${ivy.resolved.configurations}"/>
         <ivy:retrieve pattern="${lib}/[conf]/[artifact]-[revision].[ext]"/>
@@ -93,7 +93,7 @@
         </javac>
     </target>
 
-    <target name="test" depends="instrument,test-compile" if="use.test">
+    <target name="test" depends="instrument,test-compile" if="use.test" description="Run unit tests">
         <junit fork="true" dir="${basedir}" failureproperty="test.failed" printsummary="yes">
             <jvmarg value="-Dnet.sourceforge.cobertura.datafile=${coverage}/cobertura.ser"/>
             <classpath location="${coverage.classes}"/>
@@ -175,11 +175,11 @@
 
     <target name="report" depends="test-report,coverage-report" />
 
-    <target name="resolve-report" depends="resolve" description="repository dependency report">
+    <target name="resolve-report" depends="resolve" description="Generate Ivy resolution report">
         <ivy:report todir="${reports.ivy}"/>
     </target>
 
-    <target name="dist" depends="clean,artifacts,test,report" description="Create clean distribution artifacts">
+    <target name="dist" depends="clean,artifacts,test,report" description="Create distribution artifacts">
         <fail if="test.failed" message="Tests failed"/>
     </target>
 
@@ -189,13 +189,13 @@
         </ivy:publish>
     </target>
 
-    <target name="publish-public" depends="dist" description="Publish artifacts to public repository">
+    <target name="publish-public" depends="dist">
         <ivy:publish resolver="dorothy-public" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
     </target>
 
-    <target name="publish-private" depends="dist" description="Publish artifacts to private repository">
+    <target name="publish-private" depends="dist">
         <ivy:publish resolver="dorothy-private" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
@@ -209,5 +209,15 @@
             </filterchain>
         </loadfile>
         <echo message="Revision: ${dist.revision}"/>
+    </target>
+
+    <target name="svnpath">
+        <loadfile property="dist.path" srcFile="./.svn/entries">
+            <filterchain>
+                <headfilter lines="1" skip="4"/>
+                <deletecharacters chars="\n"/>
+            </filterchain>
+        </loadfile>
+        <echo message="Path: ${dist.path}"/>
     </target>
 </project>
