@@ -1,5 +1,24 @@
 <project name="build-common" xmlns:ivy="antlib:org.apache.ivy.ant" default="dist">
 
+    <condition property="use.war" value="Yes, do it!">
+        <equals arg1="war" arg2="${artifact-type}"/>
+    </condition>
+    <condition property="use.jar" value="Yes, do it!">
+        <or>
+            <not>
+                <isset property="artifact-type"/>
+            </not>
+            <equals arg1="jar" arg2="${artifact-type}"/>
+        </or>
+    </condition>
+    <condition property="CATALINA_HOME">
+        <and>
+            <isset property="use.war"/>
+            <isset property="env.CATALINA_HOME"/>
+        </and>
+    </condition>
+    <property name="deploy.webapps" value="${env.CATALINA_HOME}/webapps"/>
+
     <property name="src" location="${basedir}/src"/>
     <property name="src.properties" location="${basedir}/properties"/>
     <property name="test" location="${basedir}/test"/>
@@ -112,7 +131,7 @@
         <property name="tested" value="sure"/>
     </target>
 
-    <target name="jar" depends="compile">
+    <target name="jar" depends="compile" if="use.jar">
         <jar destfile="${build.dist}/${ant.project.name}.jar">
             <fileset dir="${build.classes}">
                 <include name="**"/>
@@ -133,9 +152,9 @@
     </target>
 
     <target name="source-jar">
-        <jar  destfile="${build.dist}/${ant.project.name}-source.jar">
+        <jar destfile="${build.dist}/${ant.project.name}-source.jar">
             <fileset dir="${src}">
-                <include  name="**"/>
+                <include name="**"/>
             </fileset>
         </jar>
     </target>
@@ -157,7 +176,26 @@
         </jar>
     </target>
 
-    <target name="artifacts" depends="jar,client-jar,source-jar,doc-jar"/>
+    <target name="update-zip" if="use.exodus">
+        <zip zipfile="${build.dist}/updates.zip">
+            <fileset dir="${basedir}/exodus/mysql">
+                <include name="*.sql"/>
+            </fileset>
+        </zip>
+    </target>
+
+    <target name="war" depends="compile,update-zip" if="use.war">
+        <war warfile="${build.dist}/${ant.project.name}.war" basedir="${basedir}/web"
+             webxml="${basedir}/web/WEB-INF/web.xml">
+            <classes dir="${build.classes}" includes="**"/>
+            <classes dir="${src.properties}" includes="**"/>
+            <classes file="${build.dist}/updates.zip"/>
+            <lib dir="${lib.runtime}" includes="*.jar"/>
+            <fileset dir="${basedir}/web" includes="**/*.*"/>
+        </war>
+    </target>
+
+    <target name="artifacts" depends="war,jar,client-jar,source-jar,doc-jar"/>
 
     <target name="test-report" if="tested">
         <junitreport todir="${reports.test}">
@@ -169,11 +207,13 @@
     </target>
 
     <target name="coverage-report" if="use.cobertura">
-        <cobertura-report format="xml" destdir="${reports.coverage}" srcdir="${src}" datafile="${coverage}/cobertura.ser"/>
-        <cobertura-report format="html" destdir="${reports.coverage}" srcdir="${src}" datafile="${coverage}/cobertura.ser"/>
+        <cobertura-report format="xml" destdir="${reports.coverage}" srcdir="${src}"
+                          datafile="${coverage}/cobertura.ser"/>
+        <cobertura-report format="html" destdir="${reports.coverage}" srcdir="${src}"
+                          datafile="${coverage}/cobertura.ser"/>
     </target>
 
-    <target name="report" depends="test-report,coverage-report" />
+    <target name="report" depends="test-report,coverage-report"/>
 
     <target name="resolve-report" depends="resolve" description="Generate Ivy resolution report">
         <ivy:report todir="${reports.ivy}"/>
@@ -181,6 +221,11 @@
 
     <target name="dist" depends="clean,artifacts,test,report" description="Create distribution artifacts">
         <fail if="test.failed" message="Tests failed"/>
+    </target>
+
+    <target name="deploy" depends="dist" if="use.war" description="Deploy the war">
+        <fail unless="CATALINA_HOME" message="CATALINA_HOME is not set"/>
+        <copy file="${build.dist}/${ant.project.name}.war" todir="${deploy.webapps}"/>
     </target>
 
     <target name="publish-local" depends="dist" description="Publish artifacts to local repository">
