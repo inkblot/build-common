@@ -140,6 +140,9 @@
             <fileset dir="${src.properties}">
                 <include name="**"/>
             </fileset>
+            <fileset dir="${build.dist}">
+                <include name="updates.zip"/>
+            </fileset>
         </jar>
     </target>
 
