@@ -159,6 +159,9 @@
             <fileset dir="${src}">
                 <include name="**"/>
             </fileset>
+            <fileset dir="${basedir}">
+                <include name="LICENSE"/>
+            </fileset>
         </jar>
     </target>
 
@@ -198,7 +201,47 @@
         </war>
     </target>
 
-    <target name="artifacts" depends="war,jar,client-jar,source-jar,doc-jar"/>
+    <target name="src-zip" depends="resolve">
+        <zip destfile="${build.dist}/${ant.project.name}-src.zip" >
+            <zipfileset prefix="${ant.project.name}-${ivy.revision}" dir="${basedir}">
+                <include name="src/**"/>
+                <include name="properties/**"/>
+                <include name="test/**"/>
+                <include name="test-properties/**"/>
+                <include name="web/**"/>
+                <include name="LICENSE"/>
+                <include name="build.xml"/>
+                <include name="ivy.xml"/>
+            </zipfileset>
+            <zipfileset prefix="build-common" dir="${basedir}/../build-common">
+                <include name="build-common.xml"/>
+                <include name="build-ivy.xml"/>
+                <include name="ivy-settings.xml"/>  
+            </zipfileset>
+        </zip>
+    </target>
+
+    <target name="src-targz" depends="resolve">
+        <tar destfile="${build.dist}/${ant.project.name}-src.tar.gz" compression="gzip">
+            <tarfileset prefix="${ant.project.name}-${ivy.revision}" dir="${basedir}">
+                <include name="src/**"/>
+                <include name="properties/**"/>
+                <include name="test/**"/>
+                <include name="test-properties/**"/>
+                <include name="web/**"/>
+                <include name="LICENSE"/>
+                <include name="build.xml"/>
+                <include name="ivy.xml"/>
+            </tarfileset>
+            <zipfileset prefix="build-common" dir="${basedir}/../build-common">
+                <include name="build-common.xml"/>
+                <include name="build-ivy.xml"/>
+                <include name="ivy-settings.xml"/>
+            </zipfileset>
+        </tar>
+    </target>
+
+    <target name="artifacts" depends="war,jar,client-jar,source-jar,doc-jar,src-zip,src-targz"/>
 
     <target name="test-report" if="tested">
         <junitreport todir="${reports.test}">
