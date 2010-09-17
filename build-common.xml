@@ -1,4 +1,5 @@
 <project name="build-common" xmlns:ivy="antlib:org.apache.ivy.ant" default="dist">
+    <dirname property="build.common" file="${ant.file.build-common}"/>
 
     <condition property="use.war" value="Yes, do it!">
         <equals arg1="war" arg2="${artifact-type}"/>
@@ -22,14 +23,19 @@
     <property name="src" location="${basedir}/src"/>
     <property name="src.properties" location="${basedir}/properties"/>
     <property name="test" location="${basedir}/test"/>
+    <property name="integration" location="${basedir}/integration"/>
     <property name="build" location="${basedir}/build"/>
     <property name="build.dist" location="${build}/dist"/>
     <property name="build.classes" location="${build}/classes"/>
     <property name="build.test" location="${build}/test"/>
+    <property name="build.integration" location="${build}/integration"/>
     <property name="build.javadoc" location="${build}/javadoc"/>
     <property name="test.classes" location="${build.test}/classes"/>
     <property name="test.properties" location="${basedir}/test-properties"/>
     <property name="test.results" location="${build.test}/results"/>
+    <property name="integration.tests" location="${basedir}/integration-tests"/>
+    <property name="integration.classes" location="${build.integration}/classes"/>
+    <property name="integration.properties" location="${basedir}/integration-properties"/>
     <property name="coverage" location="${build}/coverage"/>
     <property name="coverage.classes" location="${coverage}/classes"/>
     <property name="reports" location="${build}/reports"/>
@@ -41,6 +47,13 @@
     <property name="lib.runtime" location="${lib}/runtime"/>
     <property name="lib.test" location="${lib}/test"/>
     <property name="lib.build" location="${lib}/build"/>
+
+    <property name="ivy.version" value="2.0.0"/>
+    <property name="ivy.lib" location="${build.common}/lib/ivy"/>
+    <property name="ivy.jar.file" location="${ivy.lib}/ivy-${ivy.version}.jar"/>
+    <condition property="download-ivy.once">
+        <available file="${ivy.jar.file}"/>
+    </condition>
 
     <path id="lib.compile.path">
         <fileset dir="${lib.compile}" includes="*.jar"/>
@@ -66,6 +79,26 @@
         <delete dir="${lib}"/>
     </target>
 
+    <target name="download-ivy" unless="download-ivy.once">
+        <mkdir dir="${ivy.lib}"/>
+        <get
+                src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar"
+                dest="${ivy.jar.file}" usetimestamp="true" verbose="true"/>
+
+        <get src="http://ftp.us.xemacs.org/pub/mirrors/maven2/com/jcraft/jsch/0.1.38/jsch-0.1.38.jar"
+             dest="${ivy.lib}/jsch-0.1.38.jar" usetimestamp="true" verbose="true"/>
+    </target>
+
+    <target name="init-ivy" depends="download-ivy" unless="init-ivy.once">
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.lib}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml"
+                 uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+        <ivy:settings file="${build.common}/ivy-settings.xml"/>
+        <property name="init-ivy.once" value="yes"/>
+    </target>
+
     <target name="resolve" depends="init-ivy" description="Resolve dependencies">
         <ivy:resolve/>
         <echo message="Resolved: ${ivy.resolved.configurations}"/>
@@ -86,6 +119,7 @@
         <mkdir dir="${reports.ivy}"/>
         <mkdir dir="${reports.coverage}"/>
         <mkdir dir="${coverage.classes}"/>
+        <mkdir dir="${integration.classes}"/>
     </target>
 
     <target name="compile" depends="init">
@@ -129,6 +163,40 @@
             </batchtest>
         </junit>
         <property name="tested" value="sure"/>
+    </target>
+
+    <target name="integration-test-compile" if="use.integration">
+        <javac destdir="${integration.classes}" srcdir="${integration}" includes="**" debug="true" target="1.5">
+            <classpath location="${build.classes}"/>
+            <classpath refid="lib.compile.path"/>
+            <classpath refid="lib.runtime.path"/>
+            <classpath refid="lib.test.path"/>
+        </javac>
+    </target>
+
+    <target name="integration-test" depends="integration-test-compile" if="use.integration">
+        <java jar="${lib.test}/fitnesse-20100103.jar" dir="${integration.tests}" failonerror="true" fork="true">
+            <arg value="-c"/>
+            <arg value="${integration.suite}?suite&amp;format=text"/>
+            <arg value="-p"/>
+            <arg value="9123"/>
+            <arg value="-r"/>
+            <arg value="fitnesse"/>
+        </java>
+    </target>
+
+    <target name="fitnesse">
+        <java jar="${lib.test}/fitnesse-20100103.jar" dir="${integration.tests}" failonerror="true" fork="true">
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8998,server=y,suspend=n"/>
+            <arg value="-p"/>
+            <arg value="9234"/>
+            <arg value="-r"/>
+            <arg value="fitnesse"/>
+            <arg value="-o"/>
+            <arg value="-e"/>
+            <arg value="0"/>
+        </java>
     </target>
 
     <target name="jar" depends="compile" if="use.jar">
@@ -208,6 +276,8 @@
                 <include name="properties/**"/>
                 <include name="test/**"/>
                 <include name="test-properties/**"/>
+                <include name="integration/**"/>
+                <include name="integration-properties/**"/>
                 <include name="web/**"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
@@ -228,6 +298,8 @@
                 <include name="properties/**"/>
                 <include name="test/**"/>
                 <include name="test-properties/**"/>
+                <include name="integration/**"/>
+                <include name="integration-properties/**"/>
                 <include name="web/**"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
@@ -265,7 +337,7 @@
         <ivy:report todir="${reports.ivy}"/>
     </target>
 
-    <target name="dist" depends="clean,artifacts,test,report" description="Create distribution artifacts">
+    <target name="dist" depends="clean,artifacts,test,integration-test,report" description="Create distribution artifacts">
         <fail if="test.failed" message="Tests failed"/>
     </target>
 

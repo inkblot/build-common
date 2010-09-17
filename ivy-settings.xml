@@ -19,6 +19,10 @@
             </url>
 
             <ibiblio name="m2" m2compatible="true"/>
+            
+            <url name="neuri" m2compatible="true">
+                <artifact pattern="http://maven.neuri.com/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+            </url>
         </chain>
 
         <ssh name="dorothy-public" user="hudson" host="dorothy.movealong.org" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
