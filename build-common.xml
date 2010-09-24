@@ -137,7 +137,7 @@
         <property name="instrumented" value="sure"/>
     </target>
 
-    <target name="test-compile" if="use.test">
+    <target name="test-compile" depends="compile" if="use.test">
         <javac destdir="${test.classes}" srcdir="${test}" includes="**" debug="true" target="1.5">
             <classpath location="${build.classes}"/>
             <classpath refid="lib.compile.path"/>
@@ -153,6 +153,7 @@
             <classpath location="${build.classes}"/>
             <classpath location="${test.classes}"/>
             <classpath location="${test.properties}"/>
+            <classpath location="${src.properties}"/>
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
             <classpath refid="lib.test.path"/>
@@ -165,7 +166,7 @@
         <property name="tested" value="sure"/>
     </target>
 
-    <target name="integration-test-compile" if="use.integration">
+    <target name="integration-test-compile" depends="compile" if="use.integration">
         <javac destdir="${integration.classes}" srcdir="${integration}" includes="**" debug="true" target="1.5">
             <classpath location="${build.classes}"/>
             <classpath refid="lib.compile.path"/>
@@ -185,7 +186,7 @@
         </java>
     </target>
 
-    <target name="fitnesse">
+    <target name="fitnesse" depends="resolve">
         <java jar="${lib.test}/fitnesse-20100103.jar" dir="${integration.tests}" failonerror="true" fork="true">
             <jvmarg value="-Xdebug"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8998,server=y,suspend=n"/>
