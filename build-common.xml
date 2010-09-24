@@ -176,20 +176,23 @@
     </target>
 
     <target name="integration-test" depends="integration-test-compile" if="use.integration">
-        <java jar="${lib.test}/fitnesse-20100103.jar" dir="${integration.tests}" failonerror="true" fork="true">
-            <arg value="-c"/>
-            <arg value="${integration.suite}?suite&amp;format=text"/>
+        <java jar="${lib.build}/fitnesse-20100103.jar" dir="${integration.tests}" fork="true" resultproperty="integration.result">
             <arg value="-p"/>
             <arg value="9123"/>
             <arg value="-r"/>
             <arg value="fitnesse"/>
+            <arg value="-c"/>
+            <arg value="${integration.suite}?suite&amp;format=text"/>
         </java>
+        <condition property="test.failed">
+            <not>
+                <equals arg1="0" arg2="${integration.result}"/>
+            </not>
+        </condition>
     </target>
 
     <target name="fitnesse" depends="resolve">
-        <java jar="${lib.test}/fitnesse-20100103.jar" dir="${integration.tests}" failonerror="true" fork="true">
-            <jvmarg value="-Xdebug"/>
-            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8998,server=y,suspend=n"/>
+        <java jar="${lib.build}/fitnesse-20100103.jar" dir="${integration.tests}" failonerror="true" fork="true">
             <arg value="-p"/>
             <arg value="9234"/>
             <arg value="-r"/>
