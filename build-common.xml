@@ -175,7 +175,7 @@
         </javac>
     </target>
 
-    <target name="integration-test" depends="integration-test-compile" if="use.integration">
+    <target name="integration-test" depends="instrument,integration-test-compile" if="use.integration">
         <java jar="${lib.build}/fitnesse-20100103.jar" dir="${integration.tests}" fork="true" resultproperty="integration.result">
             <arg value="-p"/>
             <arg value="9123"/>
