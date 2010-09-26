@@ -1,6 +1,9 @@
 <project name="build-common" xmlns:ivy="antlib:org.apache.ivy.ant" default="dist">
     <dirname property="build.common" file="${ant.file.build-common}"/>
 
+    <condition property="use.svn" value="Yes, do it!">
+        <available file="${basedir}/.svn/entries"/>
+    </condition>
     <condition property="use.war" value="Yes, do it!">
         <equals arg1="war" arg2="${artifact-type}"/>
     </condition>
@@ -106,6 +109,9 @@
     </target>
 
     <target name="init" depends="resolve">
+        <tstamp>
+            <format property="time.init" pattern="yyyy-MM-dd HH:mm:ss"/>
+        </tstamp>
         <mkdir dir="${lib.runtime}"/>
         <mkdir dir="${lib.compile}"/>
         <mkdir dir="${lib.test}"/>
@@ -262,7 +268,20 @@
         </zip>
     </target>
 
-    <target name="war" depends="compile,update-zip" if="use.war">
+    <target name="build-properties" depends="resolve,svnpath,svnrev">
+        <property name="build.number" value="SNAPSHOT"/>
+        <property name="dist.path" value="${ivy.organization}/${ivy.module}"/>
+        <property name="dist.revision" value="${ivy.revision}"/>
+        <propertyfile file="${build.classes}/build.properties">
+            <entry key="build.path" value="${dist.path}"/>
+            <entry key="build.rev" value="${dist.revision}"/>
+            <entry key="build.user" value="${user.name}"/>
+            <entry key="build.date" value="${time.init}"/>
+            <entry key="build.number" value="${build.number}"/>
+        </propertyfile>
+    </target>
+
+    <target name="war" depends="compile,update-zip,build-properties" if="use.war">
         <war warfile="${build.dist}/${ant.project.name}.war" basedir="${basedir}/web"
              webxml="${basedir}/web/WEB-INF/web.xml">
             <classes dir="${build.classes}" includes="**"/>
@@ -368,7 +387,7 @@
         </ivy:publish>
     </target>
 
-    <target name="svnrev">
+    <target name="svnrev" if="use.svn">
         <loadfile property="dist.revision" srcFile="./.svn/entries">
             <filterchain>
                 <headfilter lines="1" skip="3"/>
@@ -378,7 +397,7 @@
         <echo message="Revision: ${dist.revision}"/>
     </target>
 
-    <target name="svnpath">
+    <target name="svnpath" if="use.svn">
         <loadfile property="dist.path" srcFile="./.svn/entries">
             <filterchain>
                 <headfilter lines="1" skip="4"/>
