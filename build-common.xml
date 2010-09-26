@@ -270,7 +270,7 @@
 
     <target name="build-properties" depends="resolve,svnpath,svnrev">
         <condition property="build.number" value="${env.BUILD_NUMBER}">
-            <isset value="${env.BUILD_NUMBER}"/>
+            <isset property="${env.BUILD_NUMBER}"/>
         </condition>
         <property name="build.number" value="SNAPSHOT"/>
         <property name="dist.path" value="${ivy.organization}/${ivy.module}"/>
