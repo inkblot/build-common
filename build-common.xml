@@ -1,6 +1,7 @@
 <project name="build-common" xmlns:ivy="antlib:org.apache.ivy.ant" default="dist">
     <dirname property="build.common" file="${ant.file.build-common}"/>
 
+    <property environment="env"/>
     <condition property="use.svn" value="Yes, do it!">
         <available file="${basedir}/.svn/entries"/>
     </condition>
@@ -268,9 +269,9 @@
         </zip>
     </target>
 
-    <target name="build-properties" depends="resolve,svnpath,svnrev">
+    <target name="build-properties" depends="init,svnpath,svnrev">
         <condition property="build.number" value="${env.BUILD_NUMBER}">
-            <isset property="${env.BUILD_NUMBER}"/>
+            <isset property="env.BUILD_NUMBER"/>
         </condition>
         <property name="build.number" value="SNAPSHOT"/>
         <property name="dist.path" value="${ivy.organization}/${ivy.module}"/>
