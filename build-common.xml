@@ -136,7 +136,7 @@
         </javac>
     </target>
 
-    <target name="instrument" depends="compile" if="use.cobertura">
+    <target name="instrument" depends="compile" if="use.coverage">
         <taskdef classpathref="lib.build.path" resource="tasks.properties"/>
         <cobertura-instrument todir="${coverage.classes}" datafile="${coverage}/cobertura.ser">
             <fileset dir="${build.classes}" includes="**/*.class"/>
@@ -351,7 +351,7 @@
         </junitreport>
     </target>
 
-    <target name="coverage-report" if="use.cobertura">
+    <target name="coverage-report" if="use.coverage">
         <cobertura-report format="xml" destdir="${reports.coverage}" srcdir="${src}"
                           datafile="${coverage}/cobertura.ser"/>
         <cobertura-report format="html" destdir="${reports.coverage}" srcdir="${src}"
