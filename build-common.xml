@@ -250,6 +250,7 @@
                 <include name="**/*.java"/>
             </fileset>
             <classpath refid="lib.runtime.path"/>
+            <classpath refid="lib.compile.path"/>
         </javadoc>
     </target>
 
