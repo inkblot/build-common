@@ -25,7 +25,7 @@
     <property name="deploy.webapps" value="${env.CATALINA_HOME}/webapps"/>
 
     <property name="src" location="${basedir}/src"/>
-    <property name="src.properties" location="${basedir}/properties"/>
+    <property name="src.resources" location="${basedir}/resources"/>
     <property name="test" location="${basedir}/test"/>
     <property name="integration" location="${basedir}/integration"/>
     <property name="build" location="${basedir}/build"/>
@@ -35,11 +35,11 @@
     <property name="build.integration" location="${build}/integration"/>
     <property name="build.javadoc" location="${build}/javadoc"/>
     <property name="test.classes" location="${build.test}/classes"/>
-    <property name="test.properties" location="${basedir}/test-properties"/>
+    <property name="test.resources" location="${basedir}/test-resources"/>
     <property name="test.results" location="${build.test}/results"/>
     <property name="integration.tests" location="${basedir}/integration-tests"/>
     <property name="integration.classes" location="${build.integration}/classes"/>
-    <property name="integration.properties" location="${basedir}/integration-properties"/>
+    <property name="integration.resources" location="${basedir}/integration-resources"/>
     <property name="coverage" location="${build}/coverage"/>
     <property name="coverage.classes" location="${coverage}/classes"/>
     <property name="reports" location="${build}/reports"/>
@@ -159,8 +159,8 @@
             <classpath location="${coverage.classes}"/>
             <classpath location="${build.classes}"/>
             <classpath location="${test.classes}"/>
-            <classpath location="${test.properties}"/>
-            <classpath location="${src.properties}"/>
+            <classpath location="${test.resources}"/>
+            <classpath location="${src.resources}"/>
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
             <classpath refid="lib.test.path"/>
@@ -216,7 +216,7 @@
                 <include name="**"/>
                 <exclude name="**/client/**"/>
             </fileset>
-            <fileset dir="${src.properties}">
+            <fileset dir="${src.resources}">
                 <include name="**"/>
             </fileset>
             <fileset dir="${build.dist}">
@@ -277,7 +277,7 @@
         <property name="build.number" value="SNAPSHOT"/>
         <property name="dist.path" value="${ivy.organization}/${ivy.module}"/>
         <property name="dist.revision" value="${ivy.revision}"/>
-        <propertyfile file="${build.classes}/build.properties">
+        <propertyfile file="${build.classes}/build.resources">
             <entry key="build.path" value="${dist.path}"/>
             <entry key="build.rev" value="${dist.revision}"/>
             <entry key="build.user" value="${user.name}"/>
@@ -290,7 +290,7 @@
         <war warfile="${build.dist}/${ant.project.name}.war" basedir="${basedir}/web"
              webxml="${basedir}/web/WEB-INF/web.xml">
             <classes dir="${build.classes}" includes="**"/>
-            <classes dir="${src.properties}" includes="**"/>
+            <classes dir="${src.resources}" includes="**"/>
             <classes file="${build.dist}/updates.zip"/>
             <lib dir="${lib.runtime}" includes="*.jar"/>
             <fileset dir="${basedir}/web" includes="**/*.*"/>
@@ -301,11 +301,11 @@
         <zip destfile="${build.dist}/${ant.project.name}-src.zip" >
             <zipfileset prefix="${ant.project.name}-${ivy.revision}" dir="${basedir}">
                 <include name="src/**"/>
-                <include name="properties/**"/>
+                <include name="resources/**"/>
                 <include name="test/**"/>
-                <include name="test-properties/**"/>
+                <include name="test-resources/**"/>
                 <include name="integration/**"/>
-                <include name="integration-properties/**"/>
+                <include name="integration-resources/**"/>
                 <include name="web/**"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
@@ -323,11 +323,11 @@
         <tar destfile="${build.dist}/${ant.project.name}-src.tar.gz" compression="gzip">
             <tarfileset prefix="${ant.project.name}-${ivy.revision}" dir="${basedir}">
                 <include name="src/**"/>
-                <include name="properties/**"/>
+                <include name="resources/**"/>
                 <include name="test/**"/>
-                <include name="test-properties/**"/>
+                <include name="test-resources/**"/>
                 <include name="integration/**"/>
-                <include name="integration-properties/**"/>
+                <include name="integration-resources/**"/>
                 <include name="web/**"/>
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
