@@ -51,7 +51,7 @@
     <property name="lib.runtime" location="${lib}/runtime"/>
     <property name="lib.test" location="${lib}/test"/>
     <property name="lib.build" location="${lib}/build"/>
-    <property name="updates-zip.file" value="${build.dist}/updates.zip"/>
+    <property name="updates-zip.file" value="updates.zip"/>
 
     <property name="ivy.version" value="2.0.0"/>
     <property name="ivy.lib" location="${build.common}/lib/ivy"/>
@@ -221,7 +221,7 @@
                 <include name="**"/>
             </fileset>
             <fileset dir="${build.dist}">
-                <include name="updates.zip"/>
+                <include name="${updates-zip.file}"/>
             </fileset>
         </jar>
     </target>
@@ -264,7 +264,9 @@
     </target>
 
     <target name="update-zip" if="use.exodus">
-        <zip zipfile="${updates-zip.file}">
+        <dirname file="${build.dist}/${updates-zip.file}" property="updates-zip.dir"/>
+        <mkdir dir="${updates-zip.dir}"/>
+        <zip zipfile="${build.dist}/${updates-zip.file}">
             <fileset dir="${basedir}/exodus/mysql">
                 <include name="*.sql"/>
             </fileset>
@@ -292,7 +294,7 @@
              webxml="${basedir}/web/WEB-INF/web.xml">
             <classes dir="${build.classes}" includes="**"/>
             <classes dir="${src.resources}" includes="**"/>
-            <classes file="${build.dist}/updates.zip"/>
+            <classes file="${build.dist}/${updates-zip.file}"/>
             <lib dir="${lib.runtime}" includes="*.jar"/>
             <fileset dir="${basedir}/web" includes="**/*.*"/>
         </war>
