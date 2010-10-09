@@ -51,6 +51,7 @@
     <property name="lib.runtime" location="${lib}/runtime"/>
     <property name="lib.test" location="${lib}/test"/>
     <property name="lib.build" location="${lib}/build"/>
+    <property name="updates-zip.file" value="${build.dist}/updates.zip"/>
 
     <property name="ivy.version" value="2.0.0"/>
     <property name="ivy.lib" location="${build.common}/lib/ivy"/>
@@ -263,7 +264,7 @@
     </target>
 
     <target name="update-zip" if="use.exodus">
-        <zip zipfile="${build.dist}/updates.zip">
+        <zip zipfile="${updates-zip.file}">
             <fileset dir="${basedir}/exodus/mysql">
                 <include name="*.sql"/>
             </fileset>
