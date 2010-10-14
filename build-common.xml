@@ -2,6 +2,10 @@
     <dirname property="build.common" file="${ant.file.build-common}"/>
 
     <property environment="env"/>
+
+    <condition property="use.ivy" value="Yes, do it!">
+        <available file="${basedir}/ivy.xml"/>
+    </condition>
     <condition property="use.svn" value="Yes, do it!">
         <available file="${basedir}/.svn/entries"/>
     </condition>
@@ -24,6 +28,7 @@
     </condition>
     <property name="deploy.webapps" value="${env.CATALINA_HOME}/webapps"/>
 
+    <property name="namespace" value="${ant.project.name}"/>
     <property name="src" location="${basedir}/src"/>
     <property name="src.resources" location="${basedir}/resources"/>
     <property name="test" location="${basedir}/test"/>
@@ -104,16 +109,34 @@
         <property name="init-ivy.once" value="yes"/>
     </target>
 
-    <target name="resolve" depends="init-ivy" description="Resolve dependencies">
+    <target name="resolve" depends="init-ivy" if="use.ivy" description="Resolve dependencies">
         <ivy:resolve/>
         <echo message="Resolved: ${ivy.resolved.configurations}"/>
         <ivy:retrieve pattern="${lib}/[conf]/[artifact]-[revision].[ext]"/>
     </target>
 
-    <target name="init" depends="resolve">
+    <target name="init-properties">
         <tstamp>
             <format property="time.init" pattern="yyyy-MM-dd HH:mm:ss"/>
         </tstamp>
+        <condition property="use.antcontrib" value="Yes, do it!">
+            <available resource="net/sf/antcontrib/antcontrib.properties" classpathref="lib.build.path"/>
+        </condition>
+        <condition property="use.cobertura" value="Yes, do it!">
+            <and>
+                <isset property="use.coverage"/>
+                <available resource="tasks.properties">
+                    <classpath>
+                        <fileset dir="${lib.build}">
+                            <include name="cobertura*.jar"/>
+                        </fileset>
+                    </classpath>
+                </available>
+            </and>
+        </condition>
+    </target>
+
+    <target name="init-directories">
         <mkdir dir="${lib.runtime}"/>
         <mkdir dir="${lib.compile}"/>
         <mkdir dir="${lib.test}"/>
@@ -130,6 +153,18 @@
         <mkdir dir="${integration.classes}"/>
     </target>
 
+    <target name="init-antcontrib" if="use.antcontrib">
+        <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="lib.build.path"/>
+    </target>
+
+    <target name="init-cobertura" if="use.cobertura">
+        <taskdef resource="tasks.properties" classpathref="lib.build.path"/>
+    </target>
+
+    <target name="init-tasks" depends="init-antcontrib,init-cobertura"/>
+
+    <target name="init" depends="resolve,init-directories,init-properties,init-tasks"/>
+
     <target name="compile" depends="init">
         <javac destdir="${build.classes}" srcdir="${src}" includes="**" debug="true" target="1.5">
             <classpath refid="lib.compile.path"/>
@@ -138,7 +173,6 @@
     </target>
 
     <target name="instrument" depends="compile" if="use.coverage">
-        <taskdef classpathref="lib.build.path" resource="tasks.properties"/>
         <cobertura-instrument todir="${coverage.classes}" datafile="${coverage}/cobertura.ser">
             <fileset dir="${build.classes}" includes="**/*.class"/>
         </cobertura-instrument>
@@ -273,14 +307,17 @@
         </zip>
     </target>
 
-    <target name="build-properties" depends="init,svnpath,svnrev">
+    <target name="build-properties" depends="init,svnpath,svnrev" if="use.antcontrib">
         <condition property="build.number" value="${env.BUILD_NUMBER}">
             <isset property="env.BUILD_NUMBER"/>
         </condition>
         <property name="build.number" value="SNAPSHOT"/>
         <property name="dist.path" value="${ivy.organization}/${ivy.module}"/>
         <property name="dist.revision" value="${ivy.revision}"/>
-        <propertyfile file="${build.classes}/build.resources">
+        <echo  message="Namespace is: ${namespace}"/>
+        <propertyregex property="namespace.path" input="${namespace}" defaultValue="${namespace}" regexp="\." replace="/" global="true"/>
+        <mkdir dir="${build.classes}/${namespace.path}"/>
+        <propertyfile file="${build.classes}/${namespace.path}/build.properties">
             <entry key="build.path" value="${dist.path}"/>
             <entry key="build.rev" value="${dist.revision}"/>
             <entry key="build.user" value="${user.name}"/>
@@ -364,7 +401,7 @@
 
     <target name="report" depends="test-report,coverage-report"/>
 
-    <target name="resolve-report" depends="resolve" description="Generate Ivy resolution report">
+    <target name="resolve-report" depends="resolve" if="use.ivy" description="Generate Ivy resolution report">
         <ivy:report todir="${reports.ivy}"/>
     </target>
 
@@ -377,19 +414,19 @@
         <copy file="${build.dist}/${ant.project.name}.war" todir="${deploy.webapps}"/>
     </target>
 
-    <target name="publish-local" depends="dist" description="Publish artifacts to local repository">
+    <target name="publish-local" depends="dist" if="use.ivy" description="Publish artifacts to local repository">
         <ivy:publish resolver="local" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
     </target>
 
-    <target name="publish-public" depends="dist">
+    <target name="publish-public" depends="dist" if="use.ivy">
         <ivy:publish resolver="dorothy-public" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
     </target>
 
-    <target name="publish-private" depends="dist">
+    <target name="publish-private" depends="dist" if="use.ivy">
         <ivy:publish resolver="dorothy-private" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact].[ext]"/>
         </ivy:publish>
