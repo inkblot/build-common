@@ -134,6 +134,18 @@
                 </available>
             </and>
         </condition>
+        <condition property="use.fitnesse" value="Yes, do it!">
+            <and>
+                <isset property="use.integration"/>
+                <available classname="fitnesse.slim.SlimService">
+                    <classpath>
+                        <fileset dir="${lib.build}">
+                            <include name="fitnesse*.jar"/>
+                        </fileset>
+                    </classpath>
+                </available>
+            </and>
+        </condition>
     </target>
 
     <target name="init-directories">
@@ -172,7 +184,7 @@
         </javac>
     </target>
 
-    <target name="instrument" depends="compile" if="use.coverage">
+    <target name="instrument" depends="compile" if="use.cobertura">
         <cobertura-instrument todir="${coverage.classes}" datafile="${coverage}/cobertura.ser">
             <fileset dir="${build.classes}" includes="**/*.class"/>
         </cobertura-instrument>
@@ -217,7 +229,7 @@
         </javac>
     </target>
 
-    <target name="integration-test" depends="instrument,integration-test-compile" if="use.integration">
+    <target name="integration-test" depends="instrument,integration-test-compile" if="use.fitnesse">
         <java jar="${lib.build}/fitnesse-20100103.jar" dir="${integration.tests}" fork="true" resultproperty="integration.result">
             <arg value="-p"/>
             <arg value="9123"/>
@@ -392,7 +404,7 @@
         </junitreport>
     </target>
 
-    <target name="coverage-report" if="use.coverage">
+    <target name="coverage-report" if="use.cobertura">
         <cobertura-report format="xml" destdir="${reports.coverage}" srcdir="${src}"
                           datafile="${coverage}/cobertura.ser"/>
         <cobertura-report format="html" destdir="${reports.coverage}" srcdir="${src}"
@@ -412,6 +424,13 @@
     <target name="deploy" depends="dist" if="use.war" description="Deploy the war">
         <fail unless="CATALINA_HOME" message="CATALINA_HOME is not set"/>
         <copy file="${build.dist}/${ant.project.name}.war" todir="${deploy.webapps}"/>
+    </target>
+
+    <target name="deploy-dirty" if="use.war" description="Deploy dynamic resources to a deployed artifact">
+        <fail unless="CATALINA_HOME" message="CATALINA_HOME is not set"/>
+        <copy todir="${deploy.webapps}/${ant.project.name}">
+            <fileset dir="${basedir}/web"/>
+        </copy>
     </target>
 
     <target name="publish-local" depends="dist" if="use.ivy" description="Publish artifacts to local repository">
