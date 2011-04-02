@@ -26,12 +26,12 @@
             <ibiblio name="neuri" m2compatible="true" root="http://maven.neuri.com/"/>
         </chain>
 
-        <ssh name="dorothy-public" user="jenkins" host="dorothy.movealong.org" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
+        <ssh name="dorothy-public" user="jenkins" host="dorothy.movealong.org" port="24" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
             <ivy pattern="/var/www/ivy.movealong.org/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
             <artifact pattern="/var/www/ivy.movealong.org/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
         </ssh>
 
-        <ssh name="dorothy-private" user="jenkins" host="dorothy.movealong.org" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
+        <ssh name="dorothy-private" user="jenkins" host="dorothy.movealong.org" port="24" keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
             <ivy pattern="/var/www/ivy.vpn.movealong.org/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
             <artifact pattern="/var/www/ivy.vpn.movealong.org/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
         </ssh>
