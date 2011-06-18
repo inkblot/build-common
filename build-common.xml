@@ -3,31 +3,6 @@
 
     <property environment="env"/>
 
-    <condition property="use.ivy" value="Yes, do it!">
-        <available file="${basedir}/ivy.xml"/>
-    </condition>
-    <condition property="use.svn" value="Yes, do it!">
-        <available file="${basedir}/.svn/entries"/>
-    </condition>
-    <condition property="use.war" value="Yes, do it!">
-        <equals arg1="war" arg2="${artifact-type}"/>
-    </condition>
-    <condition property="use.jar" value="Yes, do it!">
-        <or>
-            <not>
-                <isset property="artifact-type"/>
-            </not>
-            <equals arg1="jar" arg2="${artifact-type}"/>
-        </or>
-    </condition>
-    <condition property="CATALINA_HOME">
-        <and>
-            <isset property="use.war"/>
-            <isset property="env.CATALINA_HOME"/>
-        </and>
-    </condition>
-    <property name="deploy.webapps" value="${env.CATALINA_HOME}/webapps"/>
-
     <property name="namespace" value="${ant.project.name}"/>
     <property name="src" location="${basedir}/src"/>
     <property name="src.resources" location="${basedir}/resources"/>
@@ -56,13 +31,56 @@
     <property name="lib.runtime" location="${lib}/runtime"/>
     <property name="lib.test" location="${lib}/test"/>
     <property name="lib.build" location="${lib}/build"/>
-    <property name="updates-zip.file" value="updates.zip"/>
+    <property name="exodus" location="${basedir}/exodus"/>
 
     <property name="ivy.version" value="2.0.0"/>
     <property name="ivy.lib" location="${build.common}/lib/ivy"/>
     <property name="ivy.jar.file" location="${ivy.lib}/ivy-${ivy.version}.jar"/>
     <condition property="download-ivy.once">
         <available file="${ivy.jar.file}"/>
+    </condition>
+
+    <condition property="make.war" value="Yes, do it!">
+        <available file="${basedir}/web/WEB-INF/web.xml"/>
+    </condition>
+    <condition property="make.jar" value="Yes, do it!">
+        <not>
+            <or>
+                <isset property="make.war"/>
+                <isset property="make.sar"/>
+                <isset property="make.ear"/>
+            </or>
+        </not>
+    </condition>
+
+    <condition property="use.integration" value="Yes, do it!">
+        <available file="${integration}"/>
+    </condition>
+    <condition property="use.test" value="Yes, do it!">
+        <available file="${test}"/>
+    </condition>
+
+    <condition property="use.ivy" value="Yes, do it!">
+        <available file="${basedir}/ivy.xml"/>
+    </condition>
+    <condition property="use.svn" value="Yes, do it!">
+        <available file="${basedir}/.svn/entries"/>
+    </condition>
+
+    <condition property="CATALINA_HOME" value="${env.CATALINA_HOME}">
+        <isset property="env.CATALINA_HOME"/>
+    </condition>
+    <condition property="use.deploy">
+        <and>
+            <isset property="make.war"/>
+            <isset property="CATALINA_HOME"/>
+        </and>
+    </condition>
+    <condition property="deploy.webapps" value="${CATALINA_HOME}/webapps">
+        <and>
+            <isset property="make.war"/>
+            <isset property="CATALINA_HOME"/>
+        </and>
     </condition>
 
     <path id="lib.compile.path">
@@ -122,28 +140,33 @@
         <condition property="use.antcontrib" value="Yes, do it!">
             <available resource="net/sf/antcontrib/antcontrib.properties" classpathref="lib.build.path"/>
         </condition>
+        <condition property="use.junit" value="Yes, do it!">
+            <and>
+                <isset property="use.test"/>
+                <available classname="junit.framework.TestCase" classpathref="lib.test.path"/>
+            </and>
+        </condition>
         <condition property="use.cobertura" value="Yes, do it!">
             <and>
-                <isset property="use.coverage"/>
-                <available resource="tasks.properties">
-                    <classpath>
-                        <fileset dir="${lib.build}">
-                            <include name="cobertura*.jar"/>
-                        </fileset>
-                    </classpath>
-                </available>
+                <or>
+                    <isset property="use.test"/>
+                    <isset property="use.integration"/>
+                </or>
+                <available resource="net/sourceforge/cobertura/ant/antlib.xml" classpathref="lib.build.path"/>
             </and>
         </condition>
         <condition property="use.fitnesse" value="Yes, do it!">
             <and>
                 <isset property="use.integration"/>
-                <available classname="fitnesse.slim.SlimService">
-                    <classpath>
-                        <fileset dir="${lib.build}">
-                            <include name="fitnesse*.jar"/>
-                        </fileset>
-                    </classpath>
-                </available>
+                <available file="${integration.tests}/fitnesse"/>
+                <available classname="fitnesseMain.FitNesseMain" classpathref="lib.build.path"/>
+            </and>
+        </condition>
+        <condition property="use.exodus" value="Yes, do it!">
+            <and>
+                <isset property="use.antcontrib"/>
+                <available file="${exodus}"/>
+                <available classname="org.movealong.exodus.ExodusModule" classpathref="lib.runtime.path"/>
             </and>
         </condition>
     </target>
@@ -167,6 +190,9 @@
 
     <target name="init-antcontrib" if="use.antcontrib">
         <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="lib.build.path"/>
+
+        <propertyregex property="namespace.path" input="${namespace}" defaultValue="${namespace}" regexp="\." replace="/" global="true"/>
+        <property name="updates.zip" value="${namespace.path}/updates.zip"/>
     </target>
 
     <target name="init-cobertura" if="use.cobertura">
@@ -200,7 +226,7 @@
         </javac>
     </target>
 
-    <target name="test" depends="instrument,test-compile" if="use.test" description="Run unit tests">
+    <target name="test" depends="instrument,test-compile" if="use.junit" description="Run unit tests">
         <junit fork="true" dir="${basedir}" failureproperty="test.failed" printsummary="yes">
             <jvmarg value="-Dnet.sourceforge.cobertura.datafile=${coverage}/cobertura.ser"/>
             <classpath location="${coverage.classes}"/>
@@ -230,7 +256,8 @@
     </target>
 
     <target name="integration-test" depends="instrument,integration-test-compile" if="use.fitnesse">
-        <java jar="${lib.build}/fitnesse-20100103.jar" dir="${integration.tests}" fork="true" resultproperty="integration.result">
+        <property name="integration.suite" value="MainSuite"/>
+        <java classname="fitnesseMain.FitNesseMain" classpathref="lib.build.path" dir="${integration.tests}" fork="true" resultproperty="integration.result">
             <arg value="-p"/>
             <arg value="9123"/>
             <arg value="-r"/>
@@ -246,7 +273,7 @@
     </target>
 
     <target name="fitnesse" depends="resolve">
-        <java jar="${lib.build}/fitnesse-20100103.jar" dir="${integration.tests}" failonerror="true" fork="true">
+        <java classname="fitnesseMain.FitNesseMain" classpathref="lib.build.path" dir="${integration.tests}" failonerror="true" fork="true">
             <arg value="-p"/>
             <arg value="9234"/>
             <arg value="-r"/>
@@ -257,7 +284,7 @@
         </java>
     </target>
 
-    <target name="jar" depends="compile" if="use.jar">
+    <target name="jar" depends="compile" if="make.jar">
         <jar destfile="${build.dist}/${ant.project.name}.jar">
             <fileset dir="${build.classes}">
                 <include name="**"/>
@@ -267,7 +294,7 @@
                 <include name="**"/>
             </fileset>
             <fileset dir="${build.dist}">
-                <include name="${updates-zip.file}"/>
+                <include name="${updates.zip}"/>
             </fileset>
         </jar>
     </target>
@@ -291,7 +318,7 @@
         </jar>
     </target>
 
-    <target name="javadoc" if="use.javadoc">
+    <target name="javadoc">
         <javadoc destdir="${build.javadoc}">
             <fileset dir="${src}">
                 <include name="**/*.java"/>
@@ -301,7 +328,7 @@
         </javadoc>
     </target>
 
-    <target name="doc-jar" depends="javadoc" if="use.javadoc">
+    <target name="doc-jar" depends="javadoc">
         <jar destfile="${build.dist}/${ant.project.name}-doc.jar">
             <fileset dir="${build.javadoc}">
                 <include name="**"/>
@@ -310,9 +337,8 @@
     </target>
 
     <target name="update-zip" if="use.exodus">
-        <dirname file="${build.dist}/${updates-zip.file}" property="updates-zip.dir"/>
-        <mkdir dir="${updates-zip.dir}"/>
-        <zip zipfile="${build.dist}/${updates-zip.file}">
+        <mkdir dir="${build.dist}/${namespace.path}"/>
+        <zip zipfile="${build.dist}/${updates.zip}">
             <fileset dir="${basedir}/exodus/mysql">
                 <include name="*.sql"/>
             </fileset>
@@ -326,8 +352,6 @@
         <property name="build.number" value="SNAPSHOT"/>
         <property name="dist.path" value="${ivy.organization}/${ivy.module}"/>
         <property name="dist.revision" value="${ivy.revision}"/>
-        <echo  message="Namespace is: ${namespace}"/>
-        <propertyregex property="namespace.path" input="${namespace}" defaultValue="${namespace}" regexp="\." replace="/" global="true"/>
         <mkdir dir="${build.classes}/${namespace.path}"/>
         <propertyfile file="${build.classes}/${namespace.path}/build.properties">
             <entry key="build.path" value="${dist.path}"/>
@@ -338,12 +362,12 @@
         </propertyfile>
     </target>
 
-    <target name="war" depends="compile,update-zip,build-properties" if="use.war">
+    <target name="war" depends="compile,update-zip,build-properties" if="make.war">
         <war warfile="${build.dist}/${ant.project.name}.war" basedir="${basedir}/web"
              webxml="${basedir}/web/WEB-INF/web.xml">
             <classes dir="${build.classes}" includes="**"/>
             <classes dir="${src.resources}" includes="**"/>
-            <classes file="${build.dist}/${updates-zip.file}"/>
+            <classes dir="${build.dist}" includes="${updates.zip}"/>
             <lib dir="${lib.runtime}" includes="*.jar"/>
             <fileset dir="${basedir}/web" includes="**/*.*"/>
         </war>
@@ -366,7 +390,7 @@
             <zipfileset prefix="build-common" dir="${basedir}/../build-common">
                 <include name="build-common.xml"/>
                 <include name="build-ivy.xml"/>
-                <include name="ivy-settings.xml"/>  
+                <include name="ivy-settings.xml"/>
             </zipfileset>
         </zip>
     </target>
@@ -411,23 +435,21 @@
                           datafile="${coverage}/cobertura.ser"/>
     </target>
 
-    <target name="report" depends="test-report,coverage-report"/>
-
     <target name="resolve-report" depends="resolve" if="use.ivy" description="Generate Ivy resolution report">
         <ivy:report todir="${reports.ivy}"/>
     </target>
+
+    <target name="report" depends="test-report,coverage-report,resolve-report"/>
 
     <target name="dist" depends="clean,artifacts,test,integration-test,report" description="Create distribution artifacts">
         <fail if="test.failed" message="Tests failed"/>
     </target>
 
-    <target name="deploy" depends="dist" if="use.war" description="Deploy the war">
-        <fail unless="CATALINA_HOME" message="CATALINA_HOME is not set"/>
+    <target name="deploy" depends="dist" if="use.deploy" description="Deploy the war">
         <copy file="${build.dist}/${ant.project.name}.war" todir="${deploy.webapps}"/>
     </target>
 
-    <target name="deploy-dirty" if="use.war" description="Deploy dynamic resources to a deployed artifact">
-        <fail unless="CATALINA_HOME" message="CATALINA_HOME is not set"/>
+    <target name="deploy-dirty" if="use.deploy" description="Deploy dynamic resources to a deployed artifact">
         <copy todir="${deploy.webapps}/${ant.project.name}">
             <fileset dir="${basedir}/web"/>
         </copy>
