@@ -258,6 +258,7 @@
     <target name="integration-test" depends="instrument,integration-test-compile" if="use.fitnesse">
         <property name="integration.suite" value="MainSuite"/>
         <java classname="fitnesseMain.FitNesseMain" classpathref="lib.build.path" dir="${integration.tests}" fork="true" resultproperty="integration.result">
+            <arg value="-o"/>
             <arg value="-p"/>
             <arg value="9123"/>
             <arg value="-r"/>
@@ -278,7 +279,6 @@
             <arg value="9234"/>
             <arg value="-r"/>
             <arg value="fitnesse"/>
-            <arg value="-o"/>
             <arg value="-e"/>
             <arg value="0"/>
         </java>
