@@ -386,11 +386,9 @@
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
                 <include name="ivy.xml"/>
-            </zipfileset>
-            <zipfileset prefix="build-common" dir="${basedir}/../build-common">
-                <include name="build-common.xml"/>
-                <include name="build-ivy.xml"/>
-                <include name="ivy-settings.xml"/>
+                <include name="build-common/build-common.xml"/>
+                <include name="build-common/build-ivy.xml"/>
+                <include name="build-common/ivy-settings.xml"/>
             </zipfileset>
         </zip>
     </target>
@@ -408,12 +406,10 @@
                 <include name="LICENSE"/>
                 <include name="build.xml"/>
                 <include name="ivy.xml"/>
+                <include name="build-common/build-common.xml"/>
+                <include name="build-common/build-ivy.xml"/>
+                <include name="build-common/ivy-settings.xml"/>
             </tarfileset>
-            <zipfileset prefix="build-common" dir="${basedir}/../build-common">
-                <include name="build-common.xml"/>
-                <include name="build-ivy.xml"/>
-                <include name="ivy-settings.xml"/>
-            </zipfileset>
         </tar>
     </target>
 
