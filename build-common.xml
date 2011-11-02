@@ -204,7 +204,7 @@
     <target name="init" depends="resolve,init-directories,init-properties,init-tasks"/>
 
     <target name="compile" depends="init">
-        <javac destdir="${build.classes}" srcdir="${src}" includes="**" debug="true" target="1.5">
+        <javac destdir="${build.classes}" srcdir="${src}" includes="**" debug="true" target="1.5" includeantruntime="false">
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
         </javac>
@@ -218,7 +218,7 @@
     </target>
 
     <target name="test-compile" depends="compile" if="use.test">
-        <javac destdir="${test.classes}" srcdir="${test}" includes="**" debug="true" target="1.5">
+        <javac destdir="${test.classes}" srcdir="${test}" includes="**" debug="true" target="1.5" includeantruntime="false">
             <classpath location="${build.classes}"/>
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
@@ -227,7 +227,7 @@
     </target>
 
     <target name="test" depends="instrument,test-compile" if="use.junit" description="Run unit tests">
-        <junit fork="true" dir="${basedir}" failureproperty="test.failed" printsummary="yes">
+        <junit fork="true" dir="${basedir}" failureproperty="test.failed" printsummary="yes" includeantruntime="false">
             <jvmarg value="-Dnet.sourceforge.cobertura.datafile=${coverage}/cobertura.ser"/>
             <classpath location="${coverage.classes}"/>
             <classpath location="${build.classes}"/>
@@ -247,7 +247,7 @@
     </target>
 
     <target name="integration-test-compile" depends="compile" if="use.integration">
-        <javac destdir="${integration.classes}" srcdir="${integration}" includes="**" debug="true" target="1.5">
+        <javac destdir="${integration.classes}" srcdir="${integration}" includes="**" debug="true" target="1.5" includeantruntime="false">
             <classpath location="${build.classes}"/>
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
