@@ -227,7 +227,7 @@
     </target>
 
     <target name="test" depends="instrument,test-compile" if="use.junit" description="Run unit tests">
-        <junit fork="true" dir="${basedir}" failureproperty="test.failed" printsummary="yes" includeantruntime="false">
+        <junit fork="true" dir="${basedir}" failureproperty="test.failed" printsummary="yes">
             <jvmarg value="-Dnet.sourceforge.cobertura.datafile=${coverage}/cobertura.ser"/>
             <classpath location="${coverage.classes}"/>
             <classpath location="${build.classes}"/>
