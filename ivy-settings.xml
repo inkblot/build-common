@@ -6,25 +6,25 @@
             <filesystem name="local" m2compatible="true">
                 <ivy pattern="${user.home}/.ivy/repo/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
                 <artifact
-                        pattern="${user.home}/.ivy/repo/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+                        pattern="${user.home}/.ivy/repo/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
             </filesystem>
 
             <url name="movealong-private" m2compatible="true">
                 <ivy pattern="http://ivy.movealong.org/private/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
                 <artifact
-                        pattern="http://ivy.movealong.org/private/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+                        pattern="http://ivy.movealong.org/private/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
             </url>
 
             <url name="movealong-public" m2compatible="true">
                 <ivy pattern="http://ivy.movealong.org/public/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
                 <artifact
-                        pattern="http://ivy.movealong.org/public/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+                        pattern="http://ivy.movealong.org/public/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
             </url>
 
             <url name="movealong-mirror" m2compatible="true">
                 <ivy pattern="http://ivy.movealong.org/mirror/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
                 <artifact
-                        pattern="http://ivy.movealong.org/mirror/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+                        pattern="http://ivy.movealong.org/mirror/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
             </url>
         </chain>
 
@@ -32,21 +32,14 @@
              keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
             <ivy pattern="/var/www/ivy.movealong.org/public/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
             <artifact
-                    pattern="/var/www/ivy.movealong.org/public/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-        </ssh>
-
-        <ssh name="dorothy-mirror" user="jenkins" host="dorothy.movealong.org" port="24"
-             keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
-            <ivy pattern="/var/www/ivy.movealong.org/mirror/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
-            <artifact
-                    pattern="/var/www/ivy.movealong.org/mirror/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+                    pattern="/var/www/ivy.movealong.org/public/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
         </ssh>
 
         <ssh name="dorothy-private" user="jenkins" host="dorothy.movealong.org" port="24"
              keyFile="${user.home}/.ssh/id_ivy" m2compatible="true" publishPermissions="0644">
             <ivy pattern="/var/www/ivy.movealong.org/private/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
             <artifact
-                    pattern="/var/www/ivy.movealong.org/private/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+                    pattern="/var/www/ivy.movealong.org/private/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
         </ssh>
     </resolvers>
 </ivysettings>
