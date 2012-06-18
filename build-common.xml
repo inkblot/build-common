@@ -33,7 +33,7 @@
     <property name="lib.build" location="${lib}/build"/>
     <property name="exodus" location="${basedir}/exodus"/>
 
-    <property name="ivy.version" value="2.0.0"/>
+    <property name="ivy.version" value="2.2.0"/>
     <property name="ivy.lib" location="${build.common}/lib/ivy"/>
     <property name="ivy.jar.file" location="${ivy.lib}/ivy-${ivy.version}.jar"/>
     <condition property="download-ivy.once">
@@ -110,11 +110,11 @@
     <target name="download-ivy" unless="download-ivy.once">
         <mkdir dir="${ivy.lib}"/>
         <get
-                src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar"
+                src="http://ivy.movealong.org/mirror/org/apache/ivy/ivy/${ivy.version}/ivy-jar-${ivy.version}.jar"
                 dest="${ivy.jar.file}" usetimestamp="true" verbose="true"/>
 
-        <get src="http://ftp.us.xemacs.org/pub/mirrors/maven2/com/jcraft/jsch/0.1.38/jsch-0.1.38.jar"
-             dest="${ivy.lib}/jsch-0.1.38.jar" usetimestamp="true" verbose="true"/>
+        <get src="http://ivy.movealong.org/mirror/com/jcraft/jsch/0.1.44-1/jsch-jar-0.1.44-1.jar"
+             dest="${ivy.lib}/jsch-0.1.44-1.jar" usetimestamp="true" verbose="true"/>
     </target>
 
     <target name="init-ivy" depends="download-ivy" unless="init-ivy.once">
