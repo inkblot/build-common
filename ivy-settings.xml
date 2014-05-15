@@ -10,21 +10,21 @@
             </filesystem>
 
             <url name="movealong-private" m2compatible="true">
-                <ivy pattern="http://ivy.movealong.org/private/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
+                <ivy pattern="https://ivy.movealong.org/private/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
                 <artifact
-                        pattern="http://ivy.movealong.org/private/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
+                        pattern="https://ivy.movealong.org/private/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
             </url>
 
             <url name="movealong-public" m2compatible="true">
-                <ivy pattern="http://ivy.movealong.org/public/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
+                <ivy pattern="https://ivy.movealong.org/public/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
                 <artifact
-                        pattern="http://ivy.movealong.org/public/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
+                        pattern="https://ivy.movealong.org/public/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
             </url>
 
             <url name="movealong-mirror" m2compatible="true">
-                <ivy pattern="http://ivy.movealong.org/mirror/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
+                <ivy pattern="https://ivy.movealong.org/mirror/[organization]/[module]/[revision]/ivy-[revision].[ext]"/>
                 <artifact
-                        pattern="http://ivy.movealong.org/mirror/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
+                        pattern="https://ivy.movealong.org/mirror/[organization]/[module]/[revision]/[artifact]-[type]-[revision].[ext]"/>
             </url>
         </chain>
 
