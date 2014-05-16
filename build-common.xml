@@ -33,11 +33,15 @@
     <property name="lib.build" location="${lib}/build"/>
     <property name="exodus" location="${basedir}/exodus"/>
 
-    <property name="ivy.version" value="2.2.0"/>
     <property name="ivy.lib" location="${build.common}/lib/ivy"/>
-    <property name="ivy.jar.file" location="${ivy.lib}/ivy-${ivy.version}.jar"/>
+    <property name="ivy.version" value="2.2.0"/>
+    <property name="ivy.jar.file" value="ivy-jar-${ivy.version}.jar"/>
+    <property name="ivy.jar.path" location="${ivy.lib}/${ivy.jar.file}"/>
+    <property name="jsch.version" value="0.1.44-1"/>
+    <property name="jsch.jar.file" value="jsch-jar-${jsch.version}.jar"/>
+    <property name="jsch.jar.path" location="${ivy.lib}/${jsch.jar.file}"/>
     <condition property="download-ivy.once">
-        <available file="${ivy.jar.file}"/>
+        <available file="${ivy.jar.path}"/>
     </condition>
 
     <condition property="make.war" value="Yes, do it!">
@@ -109,12 +113,10 @@
 
     <target name="download-ivy" unless="download-ivy.once">
         <mkdir dir="${ivy.lib}"/>
-        <get
-                src="http://ivy.movealong.org/mirror/org/apache/ivy/ivy/${ivy.version}/ivy-jar-${ivy.version}.jar"
-                dest="${ivy.jar.file}" usetimestamp="true" verbose="true"/>
-
-        <get src="http://ivy.movealong.org/mirror/com/jcraft/jsch/0.1.44-1/jsch-jar-0.1.44-1.jar"
-             dest="${ivy.lib}/jsch-0.1.44-1.jar" usetimestamp="true" verbose="true"/>
+        <get src="https://ivy.movealong.org/mirror/org/apache/ivy/ivy/${ivy.version}/${ivy.jar.file}"
+             dest="${ivy.jar.path}" usetimestamp="true" verbose="true"/>
+        <get src="https://ivy.movealong.org/mirror/com/jcraft/jsch/${jsch.version}/${jsch.jar.file}"
+             dest="${jsch.jar.path}" usetimestamp="true" verbose="true"/>
     </target>
 
     <target name="init-ivy" depends="download-ivy" unless="init-ivy.once">
