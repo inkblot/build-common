@@ -285,6 +285,10 @@
         </java>
     </target>
 
+    <target name="pom" depends="init-ivy" if="use.ivy">
+        <ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${build.dist}/${ant.project.name}.pom" conf="default"/>
+    </target>
+
     <target name="jar" depends="compile" if="make.jar">
         <jar destfile="${build.dist}/${ant.project.name}.jar">
             <fileset dir="${build.classes}">
@@ -414,7 +418,7 @@
         </tar>
     </target>
 
-    <target name="artifacts" depends="war,jar,client-jar,source-jar,doc-jar,src-zip,src-targz"/>
+    <target name="artifacts" depends="pom,war,jar,client-jar,source-jar,doc-jar,src-zip,src-targz"/>
 
     <target name="test-report" if="tested">
         <junitreport todir="${reports.test}">
