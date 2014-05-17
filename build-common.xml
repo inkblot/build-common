@@ -132,7 +132,7 @@
     <target name="resolve" depends="init-ivy" if="use.ivy" description="Resolve dependencies">
         <ivy:resolve/>
         <echo message="Resolved: ${ivy.resolved.configurations}"/>
-        <ivy:retrieve pattern="${lib}/[conf]/[artifact]-[revision].[ext]"/>
+        <ivy:retrieve pattern="${lib}/[conf]/[artifact]-[type]-[revision].[ext]"/>
     </target>
 
     <target name="init-properties">
@@ -286,11 +286,11 @@
     </target>
 
     <target name="pom" depends="init-ivy" if="use.ivy">
-        <ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${build.dist}/${ant.project.name}.pom" conf="default"/>
+        <ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${build.dist}/${ant.project.name}-pom.xml" conf="default"/>
     </target>
 
     <target name="jar" depends="compile" if="make.jar">
-        <jar destfile="${build.dist}/${ant.project.name}.jar">
+        <jar destfile="${build.dist}/${ant.project.name}-jar.jar">
             <fileset dir="${build.classes}">
                 <include name="**"/>
                 <exclude name="**/client/**"/>
@@ -379,7 +379,7 @@
     </target>
 
     <target name="src-zip" depends="resolve">
-        <zip destfile="${build.dist}/${ant.project.name}-src.zip" >
+        <zip destfile="${build.dist}/${ant.project.name}-source.zip" >
             <zipfileset prefix="${ant.project.name}-${ivy.revision}" dir="${basedir}">
                 <include name="src/**"/>
                 <include name="resources/**"/>
@@ -399,7 +399,7 @@
     </target>
 
     <target name="src-targz" depends="resolve">
-        <tar destfile="${build.dist}/${ant.project.name}-src.tar.gz" compression="gzip">
+        <tar destfile="${build.dist}/${ant.project.name}-source.tar.gz" compression="gzip">
             <tarfileset prefix="${ant.project.name}-${ivy.revision}" dir="${basedir}">
                 <include name="src/**"/>
                 <include name="resources/**"/>
@@ -458,20 +458,20 @@
 
     <target name="publish-local" depends="dist" if="use.ivy" description="Publish artifacts to local repository">
         <ivy:publish resolver="local" overwrite="true">
-            <artifacts pattern="${build.dist}/[artifact].[ext]"/>
+            <artifacts pattern="${build.dist}/[artifact]-[type].[ext]"/>
         </ivy:publish>
     </target>
 
     <target name="publish-public" depends="dist" if="use.ivy">
         <ivy:publish resolver="dorothy-public" overwrite="true">
-            <artifacts pattern="${build.dist}/[artifact].[ext]"/>
+            <artifacts pattern="${build.dist}/[artifact]-[type].[ext]"/>
         </ivy:publish>
     </target>
 
     <target name="publish-private" depends="dist" if="use.ivy">
         <ivy:publish resolver="dorothy-private" overwrite="true">
-            <artifacts pattern="${build.dist}/[artifact].[ext]"/>
-        </ivy:publish>
+            <artifacts pattern="${build.dist}/[artifact]-[type].[ext]"/>
+        </fivy:publish>
     </target>
 
     <target name="svnrev" if="use.svn">
