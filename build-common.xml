@@ -471,7 +471,7 @@
     <target name="publish-private" depends="dist" if="use.ivy">
         <ivy:publish resolver="dorothy-private" overwrite="true">
             <artifacts pattern="${build.dist}/[artifact]-[type].[ext]"/>
-        </fivy:publish>
+        </ivy:publish>
     </target>
 
     <target name="svnrev" if="use.svn">
