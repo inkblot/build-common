@@ -368,7 +368,7 @@
     </target>
 
     <target name="war" depends="compile,update-zip,build-properties" if="make.war">
-        <war warfile="${build.dist}/${ant.project.name}.war" basedir="${basedir}/web"
+        <war warfile="${build.dist}/${ant.project.name}-war.war" basedir="${basedir}/web"
              webxml="${basedir}/web/WEB-INF/web.xml">
             <classes dir="${build.classes}" includes="**"/>
             <classes dir="${src.resources}" includes="**"/>
@@ -447,7 +447,7 @@
     </target>
 
     <target name="deploy" depends="dist" if="use.deploy" description="Deploy the war">
-        <copy file="${build.dist}/${ant.project.name}.war" todir="${deploy.webapps}"/>
+        <copy file="${build.dist}/${ant.project.name}-war.war" tofile="${deploy.webapps}/${ant.project.name}.war"/>
     </target>
 
     <target name="deploy-dirty" if="use.deploy" description="Deploy dynamic resources to a deployed artifact">
