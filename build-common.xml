@@ -32,6 +32,8 @@
     <property name="lib.test" location="${lib}/test"/>
     <property name="lib.build" location="${lib}/build"/>
     <property name="exodus" location="${basedir}/exodus"/>
+    <property name="ant.build.javac.source" value="1.7"/>
+    <property name="ant.build.javac.target" value="1.7"/>
 
     <property name="ivy.lib" location="${build.common}/lib/ivy"/>
     <property name="ivy.version" value="2.2.0"/>
@@ -206,7 +208,7 @@
     <target name="init" depends="resolve,init-directories,init-properties,init-tasks"/>
 
     <target name="compile" depends="init">
-        <javac destdir="${build.classes}" srcdir="${src}" includes="**" debug="true" target="1.5" includeantruntime="false">
+        <javac destdir="${build.classes}" srcdir="${src}" includes="**" debug="true" includeantruntime="false">
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
         </javac>
@@ -220,7 +222,7 @@
     </target>
 
     <target name="test-compile" depends="compile" if="use.test">
-        <javac destdir="${test.classes}" srcdir="${test}" includes="**" debug="true" target="1.5" includeantruntime="false">
+        <javac destdir="${test.classes}" srcdir="${test}" includes="**" debug="true" includeantruntime="false">
             <classpath location="${build.classes}"/>
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
@@ -249,7 +251,7 @@
     </target>
 
     <target name="integration-test-compile" depends="compile" if="use.integration">
-        <javac destdir="${integration.classes}" srcdir="${integration}" includes="**" debug="true" target="1.5" includeantruntime="false">
+        <javac destdir="${integration.classes}" srcdir="${integration}" includes="**" debug="true" includeantruntime="false">
             <classpath location="${build.classes}"/>
             <classpath refid="lib.compile.path"/>
             <classpath refid="lib.runtime.path"/>
